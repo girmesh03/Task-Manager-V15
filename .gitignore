@@ -1,3 +1,6 @@
+# Initialize platform admin
+backend/initializePlatform.js
+
 # Node modules and build directories
 backend/node_modules
 client/node_modules
