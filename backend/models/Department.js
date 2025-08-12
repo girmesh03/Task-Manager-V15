@@ -18,20 +18,6 @@ const departmentSchema = new mongoose.Schema(
       ref: "Organization",
       required: [true, "Organization reference is required"],
     },
-    managers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: [true, "Manager reference is required"],
-      },
-    ],
-    members: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: [true, "Member reference is required"],
-      },
-    ],
     isActive: { type: Boolean, default: true, index: true },
   },
   {

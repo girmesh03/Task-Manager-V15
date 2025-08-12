@@ -80,8 +80,6 @@ const organizationSchema = new mongoose.Schema(
       },
     },
     isActive: { type: Boolean, default: true, index: true },
-    superAdmins: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    departments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Department" }],
   },
   {
     timestamps: true,
