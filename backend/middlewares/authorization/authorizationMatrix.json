@@ -1,0 +1,391 @@
+{
+  "AuthorizationMatrix": {
+    "Organization": {
+      "description": "Represents an entity (e.g., a hotel, company, or any organization) using the platform.",
+      "operations": {
+        "Create": [{ "role": "SuperAdmin", "scope": "Onboarding only" }],
+        "Read": [
+          { "role": "SuperAdmin", "scope": "Own organization" },
+          { "role": "Admin", "scope": "Own organization" },
+          { "role": "Manager", "scope": "Own organization" },
+          { "role": "User", "scope": "Own organization" }
+        ],
+        "Update": [{ "role": "SuperAdmin", "scope": "Own organization" }],
+        "Delete": [{ "role": "SuperAdmin", "scope": "Own organization" }]
+      }
+    },
+    "Department": {
+      "description": "Represents a functional unit within an organization.",
+      "operations": {
+        "Create": [{ "role": "SuperAdmin", "scope": "Own organization" }],
+        "Read": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" },
+          { "role": "Admin", "scope": "Own organization any department" },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Own department within own organization" }
+        ],
+        "Update": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" }
+        ],
+        "Delete": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" }
+        ]
+      }
+    },
+    "User": {
+      "description": "Organization user",
+      "operations": {
+        "Create": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own organization for any department"
+          }
+        ],
+        "Read": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" },
+          { "role": "Admin", "scope": "Own organization any department" },
+          {
+            "role": "Manager",
+            "scope": "Own department users within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "Own department users within own organization"
+          }
+        ],
+        "Update": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own organization any department limited fields"
+          },
+          { "role": "Admin", "scope": "Self only limited fields" },
+          { "role": "Manager", "scope": "Self only limited fields" },
+          { "role": "User", "scope": "Self only limited fields" }
+        ],
+        "Delete": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" }
+        ]
+      }
+    },
+    "AssignedTask": {
+      "description": "Assigned task to user which inherits from base model Task",
+      "operations": {
+        "Create": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Can't create assigned task" }
+        ],
+        "Read": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Any department  within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Any department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "Assigned to self within own department and organization"
+          }
+        ],
+        "Update": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization, through task activity"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization, through task activity"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization, through task activity"
+          },
+          {
+            "role": "User",
+            "scope": "Assigned to self within own department and organization, through task activity"
+          }
+        ],
+        "Delete": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Can't delete assigned task" }
+        ]
+      }
+    },
+    "ProjectTask": {
+      "description": "Departmental task which inherits from base model Task outsourced to external clients when a task becomes too big for the department",
+      "operations": {
+        "Create": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Can't create project task" }
+        ],
+        "Read": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Any department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Any department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Can't access project task" }
+        ],
+        "Update": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Can't update project task" }
+        ],
+        "Delete": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Can't delete project task" }
+        ]
+      }
+    },
+    "RoutineTask": {
+      "description": "Routine task created by department user to log daily activities. Doesn't inherit from Task model or no relationships with AssignedTask and ProjectTask.",
+      "operations": {
+        "Create": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Own department within own organization" }
+        ],
+        "Read": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Any department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Any department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          { "role": "User", "scope": "Own department within own organization" }
+        ],
+        "Update": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "Own department within own organization, they create"
+          }
+        ],
+        "Delete": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "Own department within own organization, they created the task"
+          }
+        ]
+      }
+    },
+    "TaskActivity": {
+      "description": "Task activity for AssignedTask and ProjectTask.",
+      "operations": {
+        "Create": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "AssignedTask within own department and own organization"
+          }
+        ],
+        "Read": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "AssignedTask activity to self within own department and own organization"
+          }
+        ],
+        "Update": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "AssignedTasks to self within own department and own organization"
+          }
+        ],
+        "Delete": [
+          {
+            "role": "SuperAdmin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Admin",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "Manager",
+            "scope": "Tasks in own department within own organization"
+          },
+          {
+            "role": "User",
+            "scope": "AssignedTasks to self within own department and own organization"
+          }
+        ]
+      }
+    },
+    "Notification": {
+      "description": "Notification for different operations and tenants. Generated dynamically in the backend.",
+      "operations": {
+        "Create": [],
+        "Read": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" },
+          { "role": "Admin", "scope": "Own organization any department" },
+          { "role": "Manager", "scope": "Own department within organization" },
+          {
+            "role": "User",
+            "scope": "Their own notifications within own department and  organization"
+          }
+        ],
+        "Update": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" },
+          { "role": "Admin", "scope": "Own organization any department" },
+          { "role": "Manager", "scope": "Own department within organization" },
+          {
+            "role": "User",
+            "scope": "Their own notifications within own department and  organization"
+          }
+        ],
+        "Delete": [
+          { "role": "SuperAdmin", "scope": "Own organization any department" },
+          { "role": "Admin", "scope": "Own department within organization" },
+          { "role": "Manager", "scope": "Own department within organization" },
+          {
+            "role": "User",
+            "scope": "Their own notifications within department and  organization"
+          }
+        ]
+      }
+    }
+  }
+}

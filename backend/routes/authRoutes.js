@@ -6,13 +6,14 @@ import {
   loginUser,
   logoutUser,
   getRefreshToken,
-} from "../controllers/authController.js";
+} from "../controllers/authControllers.js";
 
 import {
-  rateLimiter,
   validateLogin,
   validateUserRegistration,
-} from "../middlewares/index.js";
+} from "../middlewares/validators/userValidators.js";
+
+import rateLimiter from "../middlewares/rateLimiter.js";
 
 const router = express.Router();
 

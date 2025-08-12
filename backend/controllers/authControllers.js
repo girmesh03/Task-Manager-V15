@@ -96,8 +96,6 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     // Create a new organization
     const organization = new Organization({
       ...organizationData,
-      superAdmins: [],
-      departments: [],
     });
     await organization.save({ session });
 
@@ -122,8 +120,6 @@ export const registerUser = asyncHandler(async (req, res, next) => {
         userData.departmentDesc ||
         `${organization.name}, department of ${userData.departmentName}`,
       organization: organization._id,
-      managers: [],
-      members: [],
     });
     await department.save({ session });
 
@@ -133,19 +129,10 @@ export const registerUser = asyncHandler(async (req, res, next) => {
       role: "SuperAdmin",
       organization: organization._id,
       department: department._id,
+      isActive: true,
       isVerified: true,
     });
     await adminUser.save({ session });
-
-    // Update department with SuperAdmin user
-    department.managers.push(adminUser._id);
-    department.members.push(adminUser._id);
-    await department.save({ session });
-
-    // Update organization with department and SuperAdmin
-    organization.departments.push(department._id);
-    organization.superAdmins.push(adminUser._id);
-    await organization.save({ session });
 
     // Commit transaction
     await session.commitTransaction();
@@ -219,7 +206,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
 //@desc    Logout user and clear cookies
 //@route   DELETE /api/auth/logout
-//@access  Public
+//@access  Private(TODO: Required only logged in users to logout)
 export const logoutUser = asyncHandler(async (req, res, next) => {
   try {
     // Clear cookies
@@ -246,13 +233,13 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
 
 //@desc    Get new access token using refresh token
 //@route   GET /api/auth/refresh-token
-//@access  Public
+//@access  Private(Private b/c at least one valid refresh token is required)
 export const getRefreshToken = asyncHandler(async (req, res, next) => {
   try {
     // Extract refresh token from cookies
     const refreshToken = req.cookies?.refresh_token;
 
-    // Check if refresh token is provided"
+    // Check if refresh token is provided
     if (!refreshToken) {
       return next(
         new CustomError(

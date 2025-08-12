@@ -1,29 +1,28 @@
 import { body } from "express-validator";
-import { handleValidationErrors } from "../middlewares/validation.js";
+import { handleValidationErrors } from "./validation.js";
 
-// Login validation rules
+// Login validation
 export const validateLogin = [
   body("email")
     .exists()
     .withMessage("Email is required")
     .bail()
     .isEmail()
-    .withMessage("Please enter a valid email")
-    .normalizeEmail(),
+    .withMessage("Invalid email format"),
+
   body("password")
     .exists()
     .withMessage("Password is required")
     .bail()
-    .isString()
-    .withMessage("Password must be a string")
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters"),
+
   handleValidationErrors,
 ];
 
-// Register user validation rules
+// User registration validation
 export const validateUserRegistration = [
-  // Organization data validation
+  // Organization validation
   body("organizationData.name")
     .exists()
     .withMessage("Organization name is required")
@@ -41,8 +40,7 @@ export const validateUserRegistration = [
     .withMessage("Organization email is required")
     .bail()
     .isEmail()
-    .withMessage("Please enter a valid email")
-    .normalizeEmail(),
+    .withMessage("Please enter a valid email"),
 
   body("organizationData.phone")
     .exists()
@@ -50,12 +48,11 @@ export const validateUserRegistration = [
     .bail()
     .trim()
     .custom((value) => {
-      const isTenDigit = /^\d{10}$/.test(value); // 10 digits
-      const isThirteenDigit = /^\+\d{12}$/.test(value); // 13 characters: + followed by 12 digits
-
-      if (!isTenDigit && !isThirteenDigit) {
+      const isTenDigit = /^\d{10}$/.test(value);
+      const isTwelveDigitWithPlus = /^\+\d{12}$/.test(value);
+      if (!isTenDigit && !isTwelveDigitWithPlus) {
         throw new Error(
-          "Phone number must be either 10 digits or 13 digits (including +)."
+          "Phone number must be 10 digits or + followed by 12 digits"
         );
       }
       return true;
@@ -73,6 +70,7 @@ export const validateUserRegistration = [
     .isLength({ max: 100 })
     .withMessage("Address cannot exceed 100 characters"),
 
+  // Updated organization size validation
   body("organizationData.size")
     .exists()
     .withMessage("Organization size is required")
@@ -80,10 +78,9 @@ export const validateUserRegistration = [
     .isString()
     .withMessage("Organization size must be a string")
     .isIn(["1-10", "11-50", "51-100", "101-500", "501-1000", "1001+"])
-    .withMessage(
-      "Organization size must be one of the following: 1-10, 11-50, 51-100, 101-500, 501-1000, 1001+"
-    ),
+    .withMessage("Invalid organization size"),
 
+  // Updated industry validation
   body("organizationData.industry")
     .exists()
     .withMessage("Organization industry is required")
@@ -106,16 +103,14 @@ export const validateUserRegistration = [
       "Non-Profit",
       "Other",
     ])
-    .withMessage(
-      "Invalid industry type, please choose from the available options."
-    ),
+    .withMessage("Invalid industry"),
 
   body("organizationData.logo")
     .optional()
     .isURL()
     .withMessage("Logo must be a valid URL"),
 
-  // User data validation
+  // User validation
   body("userData.firstName")
     .exists()
     .withMessage("First name is required")
@@ -125,10 +120,10 @@ export const validateUserRegistration = [
     .trim()
     .isLength({ min: 2 })
     .withMessage("First name must be at least 2 characters")
-    .isLength({ max: 20 })
-    .withMessage("First name cannot exceed 20 characters")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("First name can only contain letters and spaces"),
+    .isLength({ max: 30 })
+    .withMessage("First name cannot exceed 30 characters")
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("First name contains invalid characters"),
 
   body("userData.lastName")
     .exists()
@@ -137,10 +132,12 @@ export const validateUserRegistration = [
     .isString()
     .withMessage("Last name must be a string")
     .trim()
-    .isLength({ min: 2, max: 20 })
-    .withMessage("Last name must be between 2 and 20 characters")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("Last name can only contain letters and spaces"),
+    .isLength({ min: 2 })
+    .withMessage("Last name must be at least 2 characters")
+    .isLength({ max: 30 })
+    .withMessage("Last name cannot exceed 30 characters")
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("Last name contains invalid characters"),
 
   body("userData.position")
     .exists()
@@ -149,16 +146,15 @@ export const validateUserRegistration = [
     .isString()
     .withMessage("Position must be a string")
     .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage("Position must be between 2 and 50 characters"),
+    .isLength({ max: 50 })
+    .withMessage("Position cannot exceed 50 characters"),
 
   body("userData.email")
     .exists()
     .withMessage("User email is required")
     .bail()
     .isEmail()
-    .withMessage("Please enter a valid email")
-    .normalizeEmail(),
+    .withMessage("Please enter a valid email"),
 
   body("userData.password")
     .exists()
@@ -169,12 +165,7 @@ export const validateUserRegistration = [
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters"),
 
-  body("userData.role")
-    .optional()
-    .isIn(["SuperAdmin", "Admin", "Manager", "User"])
-    .withMessage("Invalid role specified"),
-
-  // Department data validation
+  // Department validation
   body("userData.departmentName")
     .exists()
     .withMessage("Department name is required")
@@ -198,7 +189,7 @@ export const validateUserRegistration = [
   handleValidationErrors,
 ];
 
-// Create user validation rules
+// User creation validation
 export const validateUserCreation = [
   body("firstName")
     .exists()
@@ -209,10 +200,10 @@ export const validateUserCreation = [
     .trim()
     .isLength({ min: 2 })
     .withMessage("First name must be at least 2 characters")
-    .isLength({ max: 20 })
-    .withMessage("First name cannot exceed 20 characters")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("First name can only contain letters and spaces"),
+    .isLength({ max: 30 })
+    .withMessage("First name cannot exceed 30 characters")
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("First name contains invalid characters"),
 
   body("lastName")
     .exists()
@@ -223,18 +214,17 @@ export const validateUserCreation = [
     .trim()
     .isLength({ min: 2 })
     .withMessage("Last name must be at least 2 characters")
-    .isLength({ max: 20 })
-    .withMessage("Last name cannot exceed 20 characters")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("Last name can only contain letters and spaces"),
+    .isLength({ max: 30 })
+    .withMessage("Last name cannot exceed 30 characters")
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("Last name contains invalid characters"),
 
   body("email")
     .exists()
     .withMessage("Email is required")
     .bail()
     .isEmail()
-    .withMessage("Please enter a valid email")
-    .normalizeEmail(),
+    .withMessage("Please enter a valid email"),
 
   body("password")
     .exists()
@@ -242,13 +232,13 @@ export const validateUserCreation = [
     .bail()
     .isString()
     .withMessage("Password must be a string")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters"),
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters"),
 
   body("role")
     .optional()
     .isIn(["SuperAdmin", "Admin", "Manager", "User"])
-    .withMessage("Role must be Admin, Manager, or User"),
+    .withMessage("Invalid role specified"),
 
   body("position")
     .exists()
@@ -275,11 +265,12 @@ export const validateUserCreation = [
     .withMessage("Each skill must be a string")
     .trim()
     .isLength({ max: 30 })
-    .withMessage("Each skill cannot exceed 30 characters"),
+    .withMessage("Skill cannot exceed 30 characters"),
+
   handleValidationErrors,
 ];
 
-// Update user validation rules
+// User update validation
 export const validateUserUpdate = [
   body("firstName")
     .optional()
@@ -288,10 +279,10 @@ export const validateUserUpdate = [
     .trim()
     .isLength({ min: 2 })
     .withMessage("First name must be at least 2 characters")
-    .isLength({ max: 20 })
-    .withMessage("First name cannot exceed 20 characters")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("First name can only contain letters and spaces"),
+    .isLength({ max: 30 })
+    .withMessage("First name cannot exceed 30 characters")
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("First name contains invalid characters"),
 
   body("lastName")
     .optional()
@@ -300,28 +291,22 @@ export const validateUserUpdate = [
     .trim()
     .isLength({ min: 2 })
     .withMessage("Last name must be at least 2 characters")
-    .isLength({ max: 20 })
-    .withMessage("Last name cannot exceed 20 characters")
-    .matches(/^[a-zA-Z\s]+$/)
-    .withMessage("Last name can only contain letters and spaces"),
+    .isLength({ max: 30 })
+    .withMessage("Last name cannot exceed 30 characters")
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("Last name contains invalid characters"),
 
-  body("email")
-    .optional()
-    .isEmail()
-    .withMessage("Please enter a valid email")
-    .normalizeEmail(),
+  body("email").optional().isEmail().withMessage("Valid email is required"),
 
   body("password")
     .optional()
-    .isString()
-    .withMessage("Password must be a string")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters"),
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters"),
 
   body("role")
     .optional()
     .isIn(["SuperAdmin", "Admin", "Manager", "User"])
-    .withMessage("Role must be one of: SuperAdmin, Admin, Manager, User"),
+    .withMessage("Invalid role specified"),
 
   body("position")
     .optional()
@@ -336,7 +321,7 @@ export const validateUserUpdate = [
     .isMongoId()
     .withMessage("Invalid department ID format"),
 
-  body("userId").optional().isMongoId().withMessage("Invalid user ID format"),
+  body("teamId").optional().isMongoId().withMessage("Invalid team ID format"),
 
   body("skills").optional().isArray().withMessage("Skills must be an array"),
 
@@ -346,7 +331,12 @@ export const validateUserUpdate = [
     .withMessage("Each skill must be a string")
     .trim()
     .isLength({ max: 30 })
-    .withMessage("Each skill cannot exceed 30 characters"),
+    .withMessage("Skill cannot exceed 30 characters"),
+
+  body("isActive")
+    .optional()
+    .isBoolean()
+    .withMessage("Active status must be a boolean"),
 
   handleValidationErrors,
 ];

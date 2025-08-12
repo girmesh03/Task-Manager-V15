@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import mongoosePaginate from "mongoose-paginate-v2";
 import bcrypt from "bcrypt";
-import crypto from "crypto";
 import CustomError from "../errorHandler/CustomError.js";
 
 const userSchema = new mongoose.Schema(
@@ -29,14 +28,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: [true, "Role is required"],
-      enum: [
-        "PlatformAdmin",
-        "PlatformSupport",
-        "SuperAdmin",
-        "Admin",
-        "Manager",
-        "User",
-      ],
+      enum: ["SuperAdmin", "Admin", "Manager", "User"],
       default: "User",
     },
     email: {
@@ -53,10 +45,6 @@ const userSchema = new mongoose.Schema(
       minlength: [8, "Password must be at least 8 characters"],
       select: false,
     },
-    team: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Team",
-    },
     organization: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
@@ -67,17 +55,16 @@ const userSchema = new mongoose.Schema(
       ref: "Department",
       required: [true, "Department reference is required"],
     },
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Team",
+    },
     profilePicture: { url: String, public_id: String },
     skills: [{ type: String, trim: true, maxlength: 30 }],
     isActive: { type: Boolean, default: true, index: true },
     isVerified: { type: Boolean, default: false },
-    pendingEmail: { type: String, trim: true, lowercase: true },
-    emailChangeToken: { type: String, select: false },
-    emailChangeTokenExpiry: { type: Date, select: false },
     verificationToken: { type: String, select: false },
     verificationTokenExpiry: { type: Date, select: false },
-    resetPasswordToken: { type: String, select: false },
-    resetPasswordExpiry: { type: Date, select: false },
   },
   {
     timestamps: true,
@@ -101,7 +88,6 @@ const userSchema = new mongoose.Schema(
 
 // Indexes
 userSchema.index({ verificationTokenExpiry: 1 }, { expireAfterSeconds: 900 });
-userSchema.index({ emailChangeTokenExpiry: 1 }, { expireAfterSeconds: 900 });
 userSchema.index({ resetPasswordExpiry: 1 }, { expireAfterSeconds: 3600 });
 
 // Virtuals
@@ -176,22 +162,6 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   const user = await this.constructor.findById(this._id).select("+password");
   if (!user) return false;
   return await bcrypt.compare(enteredPassword, user.password);
-};
-
-// Generate verification token
-userSchema.methods.generateVerificationToken = function () {
-  const token = crypto.randomBytes(3).toString("hex").toUpperCase();
-  this.verificationToken = token;
-  this.verificationTokenExpiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  return token;
-};
-
-// Password reset token
-userSchema.methods.generateResetPasswordToken = function () {
-  const token = crypto.randomBytes(32).toString("hex");
-  this.resetPasswordToken = token;
-  this.resetPasswordExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes
-  return token;
 };
 
 userSchema.plugin(mongoosePaginate);
